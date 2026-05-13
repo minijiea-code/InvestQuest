@@ -21,9 +21,9 @@ interface SelectedNews {
 }
 
 const RSS_SOURCES = [
-  'https://www.fnnews.com/rss/fn_realtimeall.xml',
+  'https://www.fnnews.com/rss/r20/fn_realnews_economy.xml',
+  'https://www.fnnews.com/rss/r20/fn_realnews_stock.xml',
   'https://news.google.com/rss/search?q=주식시장+금리+경제&hl=ko&gl=KR&ceid=KR:ko',
-  'https://www.hankyung.com/feed/finance',
 ]
 
 // ── RSS 파싱 (CDATA 지원) ──────────────────────────────────────────
@@ -67,6 +67,67 @@ function parseRSS(xml: string): NewsItem[] {
   }
 
   return items
+}
+
+// ── pubDate 파싱 (다양한 포맷 + URL 날짜 폴백) ──────────────────
+function parsePubDate(item: NewsItem): Date | null {
+  // 1차: pubDate 문자열 파싱 (KST → +0900 치환 포함)
+  if (item.pubDate) {
+    const cleaned = item.pubDate
+      .replace(/\bKST\b/g, '+0900')
+      .replace(/\bGMT\b/g, '+0000')
+      .trim()
+    const d = new Date(cleaned)
+    if (!isNaN(d.getTime())) return d
+    console.log(`[Filter] pubDate parse failed: "${item.pubDate}"`)
+  }
+
+  // 2차: URL 경로에서 날짜 추출 (/2026/05/13/ 형식)
+  const pathMatch = /\/(\d{4})\/(\d{2})\/(\d{2})\//.exec(item.link)
+  if (pathMatch) {
+    const d = new Date(`${pathMatch[1]}-${pathMatch[2]}-${pathMatch[3]}`)
+    if (!isNaN(d.getTime())) {
+      console.log(`[Filter] Date from URL path: ${d.toISOString().slice(0, 10)}`)
+      return d
+    }
+  }
+
+  // 3차: 기사 ID에 날짜가 포함된 경우 (연합뉴스 AKR20260404, 한경 등)
+  const idMatch = /[A-Z0-9]{2,5}(202\d)(\d{2})(\d{2})\d{4,}/.exec(item.link)
+  if (idMatch) {
+    const d = new Date(`${idMatch[1]}-${idMatch[2]}-${idMatch[3]}`)
+    if (!isNaN(d.getTime())) {
+      console.log(`[Filter] Date from article ID: ${d.toISOString().slice(0, 10)} — "${item.link}"`)
+      return d
+    }
+  }
+
+  console.log(`[Filter] Cannot parse date for: "${item.title}"`)
+  return null
+}
+
+// ── 최신순 정렬 (날짜 파싱 성공 → 앞, 실패 → 뒤) ────────────────
+// 기사를 제거하지 않고 최신순으로 재배열만 함.
+// 날짜 판단은 Claude 프롬프트에 오늘 날짜를 전달해 Claude가 담당.
+function sortByRecency(items: NewsItem[]): NewsItem[] {
+  const withDate: Array<{ item: NewsItem; ts: number }> = []
+  const withoutDate: NewsItem[] = []
+
+  for (const item of items) {
+    const d = parsePubDate(item)
+    if (d) {
+      withDate.push({ item, ts: d.getTime() })
+      console.log(`[Filter] Dated: ${d.toISOString().slice(0, 10)} — "${item.title}"`)
+    } else {
+      withoutDate.push(item)
+      console.log(`[Filter] No date: "${item.title}"`)
+    }
+  }
+
+  withDate.sort((a, b) => b.ts - a.ts)
+  const sorted = [...withDate.map((x) => x.item), ...withoutDate]
+  console.log(`[Filter] ${withDate.length} dated + ${withoutDate.length} undated = ${sorted.length} total`)
+  return sorted
 }
 
 async function fetchNews(): Promise<NewsItem[]> {
@@ -153,13 +214,22 @@ async function selectBestNews(
     .map((item, i) => `${i + 1}. ${item.title}\n   요약: ${item.description || '(요약 없음)'}`)
     .join('\n\n')
 
+  const todayStr = new Date().toISOString().slice(0, 10)
   const prompt = `당신은 투자 학습 앱의 퀘스트 설계자입니다.
+오늘 날짜는 ${todayStr}입니다.
 아래 금융 뉴스 목록에서 초급~중급 투자자가 투자 개념을 학습하기에 가장 좋은 뉴스 1건을 선택하세요.
 
 선택 기준:
 - 투자의 핵심 개념(금리, 실적, 밸류에이션, 산업 사이클, 인플레이션 등)과 연결 가능한 뉴스
 - 퀴즈로 만들 수 있는 구체적 숫자나 팩트가 포함된 뉴스
 - 특정 종목 추천이 아닌, 원리를 학습할 수 있는 뉴스
+
+제외 기준:
+- 광고성 콘텐츠, 기업 홍보 기사, 특정 서비스 소개 글은 제외하세요
+- 금융사/핀테크 앱의 기능 소개, 이벤트 안내, 캠페인 기사는 제외하세요
+- 실제 시장 뉴스(금리 결정, 기업 실적 발표, 산업 동향, 경제 지표 발표 등)만 선택하세요
+- 오늘 날짜(${todayStr}) 기준으로 7일 이상 지난 기사는 제외하세요
+- 선택할 만한 기사가 없으면 selectedIndex를 -1로 응답하세요
 
 뉴스 목록:
 ${newsList}
@@ -380,7 +450,8 @@ serve(async (req) => {
 
     // ── Step 1: 뉴스 수집 ──────────────────────────────────────
     console.log('[Step 1] Fetching RSS news...')
-    const newsItems = await fetchNews()
+    const rawItems = await fetchNews()
+    const newsItems = sortByRecency(rawItems)
 
     // ── Step 2/3: 선별 + 생성 (또는 더미) ─────────────────────
     let questData: Record<string, unknown>
@@ -395,6 +466,11 @@ serve(async (req) => {
       console.log(`[Step 2] Selecting best news from ${newsItems.length} items...`)
       const selected = await selectBestNews(newsItems, claudeKey)
       if (!selected) return respond({ error: 'selection_failed', questId: null })
+
+      if (selected.selectedIndex === -1) {
+        console.log('[Step 2] Claude found no suitable news (promotional/non-market content only)')
+        return respond({ error: 'no_suitable_news', questId: null })
+      }
 
       const selectedItem = newsItems[selected.selectedIndex - 1] ?? newsItems[0]
       console.log(`[Step 3] Generating quest for: "${selectedItem.title}"`)

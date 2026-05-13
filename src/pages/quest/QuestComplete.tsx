@@ -18,10 +18,10 @@ export function QuestComplete() {
   const alreadyDoneToday = isCompletedToday(user?.last_quest_date ?? null)
   const newStreak = user ? calcNewStreak(user.streak, user.last_quest_date) : 1
 
-  // 뉴스·고정 퀘스트 통합 한도 (하루 2개)
+  // 일일 한도 비활성화 (MVP 데모)
   const currentDailyCount = getDailyQuestCount(user?.last_quest_date ?? null, user?.daily_quest_count)
   const newDailyCount = alreadyDoneToday ? currentDailyCount + 1 : 1
-  const fixedLimitReached = !isAutoQuest && newDailyCount >= 2
+  const fixedLimitReached = false && !isAutoQuest && newDailyCount >= 2
 
   const [displayStreak, setDisplayStreak] = useState(
     alreadyDoneToday ? (user?.streak ?? 1) : newStreak,

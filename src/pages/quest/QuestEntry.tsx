@@ -13,9 +13,9 @@ export function QuestEntry() {
   const isAutoQuest = questId?.startsWith('quest_auto_') ?? false
   const today = new Date().toISOString().split('T')[0]
 
-  // 통합 일일 한도 체크 (뉴스 + 고정 퀘스트 합산 2개)
+  // 일일 한도 비활성화 (MVP 데모)
   const dailyCount = getDailyQuestCount(user?.last_quest_date ?? null, user?.daily_quest_count)
-  const limitReached = dailyCount >= 2
+  const limitReached = false && dailyCount >= 2
 
   // auto 퀘스트 완료 여부 (localStorage 기반)
   const newsQuestDoneToday = isAutoQuest && localStorage.getItem('news_quest_completed_date') === today
