@@ -3,6 +3,10 @@
     {
       "source": "/dart-api/:path*",
       "destination": "/api/dart/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }
