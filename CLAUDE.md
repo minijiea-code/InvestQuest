@@ -696,21 +696,31 @@ MVP 리뷰어가 퀘스트를 자유롭게 테스트할 수 있도록 일일 한
 
 > 복구 시: `false &&` 접두어 제거하면 원래 2개/일 한도로 복귀.
 
-**프로덕션 DART API 프록시 (vercel.json)**
+**프로덕션 DART API 프록시 (vercel.json + API Route)**
 
-Vite 개발 프록시는 빌드 결과물에 포함되지 않아 프로덕션에서 DART API CORS 오류 발생. `vercel.json` rewrites로 해결.
+Vite 개발 프록시는 빌드 결과물에 포함되지 않아 프로덕션에서 DART API CORS 오류 발생.
+초기 `vercel.json` 외부 HTTPS rewrite → Vercel 엣지가 외부 HTTPS를 직접 처리하지 못해 502 발생.
+최종적으로 Node.js 서버리스 함수(`api/dart-proxy.ts`)로 교체.
 
 | 파일 | 변경 내용 |
 |------|-----------|
-| `vercel.json` (신규) | `/dart-api/:path*` → `https://opendart.fss.or.kr/api/:path*` 서버사이드 프록시 |
+| `api/dart-proxy.ts` (신규) | Node.js `fetch`로 `opendart.fss.or.kr/api/list.json` 프록시 |
+| `vercel.json` | `/dart-api/list.json` → `/api/dart-proxy` 내부 rewrite + SPA catch-all 추가 |
 
 ```json
 {
   "rewrites": [
-    { "source": "/dart-api/:path*", "destination": "https://opendart.fss.or.kr/api/:path*" }
+    { "source": "/dart-api/list.json", "destination": "/api/dart-proxy" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
 ```
+
+- `/dart-api/list.json?params` 요청 → `vercel.json` rewrite → `/api/dart-proxy?params` → `dart-proxy.ts`에서 쿼리 파라미터 그대로 DART API로 전달
+- `/((?!api/).*)` → `/index.html`: React Router SPA 라우팅 지원 (없으면 `/portfolio` 등 직접 접근 시 404)
+- DART API(`opendart.fss.or.kr`)는 해외 IP 차단 없음 — 해외 서버에서 정상 접근 가능
+
+> ⚠️ **Vercel catch-all rewrite 주의**: `[...path].ts` 형태의 catch-all API Route는 Vercel에서 라우팅이 불안정할 수 있음. 단일 엔드포인트는 명시적 파일명(`dart-proxy.ts`)으로 처리하는 것이 안정적.
 
 ---
 
