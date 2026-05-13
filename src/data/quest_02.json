@@ -1,0 +1,155 @@
+{
+  "id": "quest_02",
+  "title": "투자 자산의 종류 — 주식·채권·ETF",
+  "description": "주식, 채권, ETF의 차이를 알아봐요",
+  "estimatedMinutes": 7,
+  "category": "투자 기초",
+  "learningPoints": [
+    "주식, 채권, ETF의 핵심 차이",
+    "위험과 수익의 관계",
+    "초보 투자자에게 맞는 자산 고르기"
+  ],
+  "keySummary": [
+    "주식: 기업의 소유권. 기업이 잘되면 오르고, 못되면 내린다",
+    "채권: 돈을 빌려주고 이자를 받는다. 주식보다 안전하지만 수익 낮음",
+    "ETF: 여러 주식을 한 번에. 분산 투자의 가장 쉬운 방법"
+  ],
+  "screens": [
+    {
+      "id": "s01",
+      "type": "single_choice",
+      "noReveal": true,
+      "situation": "A씨는 매달 50만 원을 은행 적금에 넣고 있어요. 연 이자율 3%예요.\nB씨는 같은 50만 원으로 주식 ETF를 매달 사고 있어요.",
+      "title": "10년 후, 누가 더 많은 돈을 갖고 있을까요?",
+      "choices": [
+        { "id": "a", "text": "확실히 A씨 (적금이 안전하니까)", "isCorrect": false },
+        { "id": "b", "text": "알 수 없다", "isCorrect": true }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "explanation",
+      "title": "투자 자산이란 무엇인가요?",
+      "body": "방금 문제의 답은 '알 수 없다'예요.\n\n적금은 이자가 정해져 있어서 안전하지만, 물가 상승률보다 낮을 수 있어요. (Unit 1에서 배웠죠!)\n\n그래서 사람들은 적금 외에 다른 곳에도 돈을 넣어요. 이걸 '투자 자산'이라고 해요.\n\n대표적인 투자 자산 3가지를 지금부터 배울 거예요:\n💰 주식, 채권, ETF"
+    },
+    {
+      "id": "s03",
+      "type": "single_choice",
+      "situation": "주식을 산다는 건 기업의 일부를 소유하는 거예요.\n삼성전자 주식 1주를 사면, 삼성전자의 아주 작은 주인이 되는 거예요.\n기업이 돈을 잘 벌면 주가가 오르고, 못 벌면 내려가요.",
+      "title": "삼성전자 주식 1주를 가진 사람은 삼성전자의 ___이다",
+      "choices": [
+        { "id": "a", "text": "직원", "isCorrect": false },
+        { "id": "b", "text": "주주 (소유자의 일부)", "isCorrect": true },
+        { "id": "c", "text": "채권자", "isCorrect": false }
+      ],
+      "explanation": "주주(株主)는 말 그대로 '주식의 주인'이에요. 기업이 이익을 내면 배당도 받을 수 있어요. (Unit 1에서 배운 배당, 기억나죠!)"
+    },
+    {
+      "id": "s04",
+      "type": "single_choice",
+      "situation": "채권을 산다는 건 기업이나 정부에 돈을 빌려주는 거예요.\n정해진 기간이 지나면 원금을 돌려받고, 그동안 이자를 받아요.\n주식보다 안전하지만, 수익도 보통 낮아요.",
+      "title": "채권 투자자는 기업의 ___이다",
+      "choices": [
+        { "id": "a", "text": "주주 (소유자)", "isCorrect": false },
+        { "id": "b", "text": "채권자 (돈을 빌려준 사람)", "isCorrect": true },
+        { "id": "c", "text": "경영자", "isCorrect": false }
+      ],
+      "explanation": "주식은 소유, 채권은 대출이에요. 이 차이가 핵심이에요. 주주는 기업이 망하면 돈을 잃지만, 채권자는 주주보다 먼저 돈을 돌려받아요."
+    },
+    {
+      "id": "s05",
+      "type": "drag_match",
+      "title": "주식과 채권의 특징을 올바르게 연결해보세요",
+      "dragItems": [
+        { "id": "d1", "text": "기업의 소유권", "correctZone": "stock" },
+        { "id": "d2", "text": "정해진 이자 수익", "correctZone": "bond" },
+        { "id": "d3", "text": "기업이 망하면 먼저 돈 돌려받음", "correctZone": "bond" },
+        { "id": "d4", "text": "가격이 매일 크게 변할 수 있음", "correctZone": "stock" }
+      ],
+      "dropZones": [
+        { "id": "stock", "label": "주식" },
+        { "id": "bond", "label": "채권" }
+      ],
+      "explanation": "주식은 '소유'하는 것, 채권은 '빌려주는' 것. 이 한 줄이면 두 자산의 핵심 차이를 설명할 수 있어요."
+    },
+    {
+      "id": "s06",
+      "type": "single_choice",
+      "situation": "ETF는 여러 주식을 한 바구니에 담은 상품이에요.\n예를 들어 '반도체 ETF'를 사면 삼성전자, SK하이닉스, TSMC 등 반도체 기업에 한 번에 투자하는 거예요.\n한 종목만 사는 것보다 위험이 분산돼요.",
+      "title": "'코스피 200 ETF'를 1주 사면 어떻게 되는 건가요?",
+      "choices": [
+        { "id": "a", "text": "코스피 상위 1개 기업에 투자", "isCorrect": false },
+        { "id": "b", "text": "코스피 상위 200개 기업에 한 번에 투자", "isCorrect": true },
+        { "id": "c", "text": "코스피 전체 기업의 채권을 구매", "isCorrect": false }
+      ],
+      "explanation": "ETF 1주만 사도 수십~수백 개 기업에 분산 투자한 효과가 있어요. 그래서 초보 투자자에게 자주 추천되는 자산이에요."
+    },
+    {
+      "id": "s07",
+      "type": "single_choice",
+      "situation": "펀드도 여러 자산을 묶은 상품이에요. ETF와 비슷하죠?\n그런데 둘은 중요한 차이가 하나 있어요.",
+      "title": "ETF와 펀드의 가장 큰 차이는?",
+      "choices": [
+        { "id": "a", "text": "ETF는 주식처럼 실시간 거래 가능, 펀드는 하루 1번 가격 결정", "isCorrect": true },
+        { "id": "b", "text": "ETF는 채권만, 펀드는 주식만 담을 수 있다", "isCorrect": false },
+        { "id": "c", "text": "ETF는 정부만 만들 수 있다", "isCorrect": false }
+      ],
+      "explanation": "ETF는 Exchange-Traded Fund, 말 그대로 '거래소에서 거래되는 펀드'예요. 주식처럼 사고팔 수 있어서 편리하고, 보통 수수료도 펀드보다 낮아요."
+    },
+    {
+      "id": "s08",
+      "type": "single_choice",
+      "situation": "주식, 채권, ETF — 세 가지를 배웠어요. 이제 위험도 순서를 맞춰볼까요?",
+      "title": "일반적으로 위험이 낮은 순서대로 나열하세요",
+      "choices": [
+        { "id": "a", "text": "① 채권 → ② ETF → ③ 개별 주식", "isCorrect": true },
+        { "id": "b", "text": "① 주식 → ② ETF → ③ 채권", "isCorrect": false },
+        { "id": "c", "text": "① ETF → ② 주식 → ③ 채권", "isCorrect": false }
+      ],
+      "explanation": "채권은 이자가 정해져 있어 안정적이에요. ETF는 여러 주식으로 분산되어 개별 주식보다 덜 흔들려요. 개별 주식은 수익도 크지만 위험도 가장 커요. Unit 1에서 배운 '높은 수익 = 높은 위험' 기억나죠!"
+    },
+    {
+      "id": "s09",
+      "type": "explanation",
+      "title": "처음 문제로 돌아가볼까요?",
+      "body": "적금 3% vs ETF 투자 — 10년 후 누가 더 많을까?\n\n정답은 '알 수 없다'였어요. 왜냐하면:\n\n• 적금은 연 3% 확정. 10년 뒤 약 6,990만 원 (복리)\n• ETF는 연평균 수익률이 7~10%일 수도 있지만, -20%인 해도 있어요\n\n적금은 '확실한 작은 수익', 주식·ETF는 '불확실한 큰 수익'이에요.\n정답이 없어서 '알 수 없다'가 답인 거예요."
+    },
+    {
+      "id": "s10",
+      "type": "single_choice",
+      "preamble": "이번에도 실제로 볼 수 있는 문장으로 만나볼 거예요!",
+      "situation": "📰 경제 뉴스\n\"미국 국채 10년물 금리가 4.5%를 돌파하면서 주식 시장이 하락했다.\"",
+      "title": "'국채'는 어떤 종류의 투자 자산인가요?",
+      "choices": [
+        { "id": "a", "text": "주식", "isCorrect": false },
+        { "id": "b", "text": "채권", "isCorrect": true },
+        { "id": "c", "text": "ETF", "isCorrect": false }
+      ],
+      "explanation": "국채는 '나라가 발행한 채권'이에요. 정부에 돈을 빌려주고 이자를 받는 거예요. 가장 안전한 채권 중 하나예요."
+    },
+    {
+      "id": "s11",
+      "type": "single_choice",
+      "situation": "📱 증권 앱 화면\nKODEX 200  |  현재가 35,420원  |  전일 대비 +1.2%",
+      "title": "'KODEX 200'은 어떤 종류의 투자 자산인가요?",
+      "choices": [
+        { "id": "a", "text": "개별 주식", "isCorrect": false },
+        { "id": "b", "text": "채권", "isCorrect": false },
+        { "id": "c", "text": "ETF", "isCorrect": true }
+      ],
+      "explanation": "KODEX 200은 코스피 200 지수를 추종하는 ETF예요. 이름에 'KODEX', 'TIGER', 'KBSTAR' 등이 붙으면 ETF일 가능성이 높아요. 증권 앱에서 자주 볼 수 있는 이름이니 기억해두세요."
+    },
+    {
+      "id": "s12",
+      "type": "single_choice",
+      "situation": "C씨는 투자를 처음 시작해요. 한 종목에 전부 넣기는 무섭고, 채권은 수익이 너무 낮다고 느껴요. 여러 기업에 분산하면서도 주식처럼 쉽게 사고팔고 싶어요.",
+      "title": "C씨에게 가장 적합한 투자 자산은?",
+      "choices": [
+        { "id": "a", "text": "삼성전자 주식 1주", "isCorrect": false },
+        { "id": "b", "text": "국채 10년물", "isCorrect": false },
+        { "id": "c", "text": "코스피 200 ETF", "isCorrect": true }
+      ],
+      "explanation": "분산 + 편의성 + 주식 수준의 수익 가능성 = ETF. C씨의 조건에 딱 맞는 자산이에요. 실제로 많은 초보 투자자가 ETF로 투자를 시작해요."
+    }
+  ]
+}

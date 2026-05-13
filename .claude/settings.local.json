@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Command node, npm, pnpm, yarn 2>&1)",
+      "PowerShell($env:PATH -split \";\")"
+    ]
+  }
+}

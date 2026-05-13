@@ -1,0 +1,168 @@
+{
+  "id": "quest_01",
+  "title": "인플레이션, 이름은 들어봤죠?",
+  "description": "물가가 오르면 내 돈의 가치는 어떻게 될까요?",
+  "estimatedMinutes": 5,
+  "category": "경제 기초",
+  "learningPoints": [
+    "인플레이션이 내 돈의 가치에 미치는 영향",
+    "투자로 돈을 버는 두 가지 방법: 자본차익과 배당",
+    "높은 수익에는 항상 위험이 따른다"
+  ],
+  "keySummary": [
+    "인플레이션: 가만히 있으면 돈의 가치가 조용히 줄어들어요",
+    "자본차익: 오를 때 팔아서 버는 수익 / 배당: 기업이 나눠주는 수익",
+    "투자는 돈을 더 버는 게 아니라, 줄어드는 걸 막는 행동이에요"
+  ],
+  "screens": [
+    {
+      "id": "s01",
+      "type": "single_choice",
+      "noReveal": true,
+      "situation": "2000년에 100만원을 은행 통장에 넣어뒀어요. 24년 뒤인 2024년에 꺼냈더니 여전히 100만 원이에요.",
+      "title": "이 사람은 손해를 본 걸까요?",
+      "choices": [
+        { "id": "a", "text": "손해다", "isCorrect": true },
+        { "id": "b", "text": "손해가 아니다", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "explanation",
+      "title": "방금 고른 선택, 사실 정답이 있어요",
+      "body": "2000년에 짜장면 한 그릇이 3,000원이었는데, 2024년엔 8,000원이에요. 같은 100만 원이라도 살 수 있는 게 달라졌죠.\n\n이걸 인플레이션이라고 해요.\n\n💡 인플레이션: 시간이 지날수록 같은 돈으로 살 수 있는 것이 줄어드는 현상"
+    },
+    {
+      "id": "s03",
+      "type": "single_choice",
+      "situation": "🍜 짜장면 한 그릇 가격\n2000년 → 3,000원\n2024년 → 8,000원",
+      "title": "100만 원으로 각각 몇 그릇을 살 수 있을까요?",
+      "hint": "100만 원 ÷ 가격 = 살 수 있는 그릇 수",
+      "choices": [
+        { "id": "a", "text": "2000년 333그릇 / 2024년 333그릇", "isCorrect": false },
+        { "id": "b", "text": "2000년 333그릇 / 2024년 125그릇", "isCorrect": true },
+        { "id": "c", "text": "2000년 125그릇 / 2024년 333그릇", "isCorrect": false },
+        { "id": "d", "text": "2000년 125그릇 / 2024년 125그릇", "isCorrect": false }
+      ],
+      "explanation": "24년 동안 돈을 가만히 뒀더니, 살 수 있는 게 절반 이하로 줄었어요."
+    },
+    {
+      "id": "s04",
+      "type": "single_choice",
+      "characterSpeech": "2024년에도 짜장면 333그릇을 먹고 싶어요. 얼마가 필요할까요?",
+      "hint": "2024년 짜장면 한 그릇 = 8,000원",
+      "choices": [
+        { "id": "a", "text": "100만원", "isCorrect": false },
+        { "id": "b", "text": "약 266만원", "isCorrect": true },
+        { "id": "c", "text": "200만원", "isCorrect": false },
+        { "id": "d", "text": "500만원", "isCorrect": false }
+      ],
+      "explanation": "333그릇 × 8,000원 = 2,664,000원. 24년 전과 똑같이 먹으려면 돈이 2.6배 넘게 필요해요. 이게 바로 화폐 실질 가치의 감소예요."
+    },
+    {
+      "id": "s05",
+      "type": "single_choice",
+      "situation": "올해 짜장면이 8,000원인데, 내년엔 8,800원이 됐어요. 물가상승률은 얼마일까요?",
+      "hint": "물가상승률 = (오른 금액 ÷ 원래 금액) × 100",
+      "choices": [
+        { "id": "a", "text": "5%", "isCorrect": false },
+        { "id": "b", "text": "8%", "isCorrect": false },
+        { "id": "c", "text": "10%", "isCorrect": true },
+        { "id": "d", "text": "12%", "isCorrect": false }
+      ],
+      "explanation": "(8,800 - 8,000) ÷ 8,000 × 100 = 10%\n\n물가가 매년 10%씩 오르면, 10년 후엔 같은 돈으로 지금의 38%밖에 못 사요 (복리 효과)."
+    },
+    {
+      "id": "s06",
+      "type": "explanation",
+      "title": "그래서 투자를 해요",
+      "body": "돈을 더 벌기 위해서가 아니에요.\n돈이 줄어드는 걸 막기 위해서예요.\n\n물가가 매년 오르는 만큼, 내 돈도 불어나야 제자리인 거예요."
+    },
+    {
+      "id": "s07",
+      "type": "single_choice",
+      "preamble": "투자로 돈을 버는 방법은 크게 두 가지예요.",
+      "characterSpeech": "A 주식을 10만 원에 3주 샀더니, 오늘 주가가 15만 원이 됐어요! 지금 팔면 얼마를 벌었을까요?",
+      "hint": "(15만원 - 10만원) × 3주",
+      "choices": [
+        { "id": "a", "text": "3만 원", "isCorrect": false },
+        { "id": "b", "text": "15만 원", "isCorrect": true },
+        { "id": "c", "text": "45만 원", "isCorrect": false },
+        { "id": "d", "text": "5만 원", "isCorrect": false }
+      ],
+      "explanation": "이걸 자본차익(Capital Gain)이라고 해요. 사고 팔 때의 가격 차이로 버는 수익이에요."
+    },
+    {
+      "id": "s08",
+      "type": "single_choice",
+      "characterSpeech": "그런데 A 주식에서 배당금도 줬어요! 주당 1,000원씩이래요. 3주를 갖고 있으니, 배당금으로 얼마를 받을까요?",
+      "choices": [
+        { "id": "a", "text": "1,000원", "isCorrect": false },
+        { "id": "b", "text": "3,000원", "isCorrect": true },
+        { "id": "c", "text": "10,000원", "isCorrect": false },
+        { "id": "d", "text": "30,000원", "isCorrect": false }
+      ],
+      "explanation": "이걸 배당(Dividend)이라고 해요. 기업이 이익의 일부를 주주에게 나눠주는 거예요. 주식을 팔지 않아도 받을 수 있어요."
+    },
+    {
+      "id": "s09",
+      "type": "single_choice",
+      "characterSpeech": "그러면 A 주식으로 총 얼마를 벌었을까요? (자본차익 + 배당금)",
+      "choices": [
+        { "id": "a", "text": "15만 원", "isCorrect": false },
+        { "id": "b", "text": "2,000원", "isCorrect": false },
+        { "id": "c", "text": "15만 3,000원", "isCorrect": true },
+        { "id": "d", "text": "18만 원", "isCorrect": false }
+      ],
+      "explanation": "자본차익 150,000원 + 배당금 3,000원 = 153,000원\n\n✅ 자본차익: 팔 때와 살 때 가격 차이\n✅ 배당: 기업이 나눠주는 이익\n\n투자 수익은 이 두 가지로 이루어져요."
+    },
+    {
+      "id": "s10",
+      "type": "single_choice",
+      "situation": "그런데 투자에는 항상 리스크가 따라요. 주가가 내려갈 수도 있거든요.",
+      "title": "A 주식을 10만 원에 샀는데 7만 원이 됐어요. 지금 팔면 어떻게 될까요?",
+      "choices": [
+        { "id": "a", "text": "3만 원 손해", "isCorrect": true },
+        { "id": "b", "text": "3만 원 이익", "isCorrect": false }
+      ],
+      "explanation": "이게 바로 리스크예요. 수익이 클수록 손실도 클 수 있어요."
+    },
+    {
+      "id": "s11",
+      "type": "single_choice",
+      "preamble": "지금까지 배운 내용을 실제 뉴스에서 만나볼 거예요. 조금 어려울 수 있지만 괜찮아요!",
+      "situation": "📰 경제 뉴스\n\"한국은행이 기준금리를 동결하면서\n인플레이션 우려가 지속되고 있다.\"",
+      "title": "\"인플레이션 우려\"가 의미하는 것은?",
+      "choices": [
+        { "id": "a", "text": "물가가 계속 오를 수 있다는 걱정", "isCorrect": true },
+        { "id": "b", "text": "주가가 계속 오를 수 있다는 기대", "isCorrect": false },
+        { "id": "c", "text": "금리가 내려갈 것이라는 예상", "isCorrect": false }
+      ],
+      "explanation": "인플레이션 = 물가 상승. '우려'는 걱정이라는 뜻이에요. 금리를 동결했다는 건 지금 당장 더 올리지 않았다는 뜻인데, 물가가 아직 안 잡혀서 시장이 걱정하고 있는 거예요."
+    },
+    {
+      "id": "s12",
+      "type": "single_choice",
+      "situation": "📱 증권 앱 화면\n삼성전자\n현재가 75,000원  |  배당수익률 2.1%",
+      "title": "\"배당수익률 2.1%\"는 무슨 의미일까요?",
+      "choices": [
+        { "id": "a", "text": "주가가 2.1% 올랐다", "isCorrect": false },
+        { "id": "b", "text": "1년간 배당금이 주가의 2.1%다", "isCorrect": true },
+        { "id": "c", "text": "2.1% 손해를 봤다", "isCorrect": false }
+      ],
+      "explanation": "배당수익률 = 1년 배당금 ÷ 주가 × 100\n\n주가 75,000원에서 2.1%면 1년 배당금이 약 1,575원이라는 뜻이에요. 주식을 갖고 있으면 매년 이 금액을 받을 수 있어요."
+    },
+    {
+      "id": "s13",
+      "type": "single_choice",
+      "situation": "A씨는 10년 전 1,000만 원을 통장에 넣어뒀어요. 지금 꺼냈더니 1,050만 원이에요. 10년간 물가는 매년 3%씩 올랐어요.",
+      "title": "A씨는 사실 손해일까요, 이익일까요?",
+      "choices": [
+        { "id": "a", "text": "이익 (돈이 늘었으니까)", "isCorrect": false },
+        { "id": "b", "text": "손해 (물가 상승보다 덜 늘었으니까)", "isCorrect": true },
+        { "id": "c", "text": "정확히 0 (본전치기)", "isCorrect": false }
+      ],
+      "explanation": "10년간 물가가 매년 3% 복리로 올랐다면 약 34% 상승. 1,000만원은 1,344만원이 되어야 구매력을 유지해요. 그런데 1,050만원(+5%)밖에 안 됐으니 실질적으로는 손해예요."
+    }
+  ]
+}
