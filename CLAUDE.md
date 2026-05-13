@@ -525,7 +525,7 @@ GRANT ALL ON TABLE public.quests TO service_role;
 
 | 단계 | 내용 |
 |------|------|
-| 1. 뉴스 수집 | RSS 피드 순서대로 시도: 한국경제 → Google News → 파이낸셜뉴스 (fallback) |
+| 1. 뉴스 수집 | RSS 피드 순서대로 시도: 파이낸셜뉴스(경제) → 파이낸셜뉴스(증권) → Google News (fallback) |
 | 2. 뉴스 선별 | Claude Haiku로 10개 기사 중 학습에 적합한 1건 선택 |
 | 3. 퀘스트 생성 | Claude Sonnet으로 5화면 퀘스트 JSON 생성 (newsSource.summary 포함) |
 | 4. DB 저장 | `quests` 테이블 UPSERT (`id = quest_auto_YYYYMMDD`) |
@@ -613,6 +613,8 @@ export const QUEST_SEQUENCE = ['quest_01', 'quest_02', 'quest_03']
 - 홈 화면: 한도 도달 시 quest_02(마지막 완료) 표시, quest_03 노출 안 함
 - QuestComplete: quest_02 완료 후 quest_03 예고 텍스트 표시 (프리미엄 구현 시 활성화)
 
+> ⚠️ **MVP 데모용 한도 비활성화**: 현재 `QuestEntry.tsx`의 `limitReached = false`, `QuestComplete.tsx`의 `fixedLimitReached = false`로 설정되어 일일 한도가 적용되지 않음. 정식 출시 전 `dailyCount >= 2` 조건으로 복구 필요.
+
 ---
 
 ### 버그 수정 및 로직 개선 ✅
@@ -651,6 +653,63 @@ const linkM = /<link>([\s\S]*?)<\/link>/.exec(block)
 const linkM =
   /<link><!\[CDATA\[([\s\S]*?)\]\]><\/link>/.exec(block) ||
   /<link>([\s\S]*?)<\/link>/.exec(block)
+```
+
+**fnnews RSS URL 404 수정 + RSS 소스 재편**
+
+`fnnews.com/rss/fn_realtimeall.xml`이 404를 반환해 Google News fallback으로 넘어가면서 오래된 기사(4월 4일 등)가 선별되던 문제 수정.
+
+| 파일 | 변경 내용 |
+|------|-----------|
+| `supabase/functions/generate-news-quest/index.ts` | RSS_SOURCES 교체 및 pubDate 파싱 강화 |
+
+```typescript
+// 수정 전
+const RSS_SOURCES = [
+  'https://www.fnnews.com/rss/fn_realtimeall.xml',        // 404
+  'https://news.google.com/rss/search?q=주식시장+금리+경제&...',
+  'https://www.hankyung.com/feed/finance',
+]
+
+// 수정 후
+const RSS_SOURCES = [
+  'https://www.fnnews.com/rss/r20/fn_realnews_economy.xml', // 경제 섹션
+  'https://www.fnnews.com/rss/r20/fn_realnews_stock.xml',   // 증권 섹션 (fallback)
+  'https://news.google.com/rss/search?q=주식시장+금리+경제&...',
+]
+```
+
+- fnnews.com RSS 디렉터리 경로가 `/rss/r20/` 로 변경되어 있었음 (`https://www.fnnews.com/rss` 페이지에서 확인)
+- 기사 링크가 `https://www.fnnews.com/news/YYYYMMDD...` 형식의 직접 URL (프리미엄 페이지 아님)
+- `parsePubDate()` 함수 추가: pubDate 문자열 파싱 실패 시 URL 경로(`/2026/05/13/`) → 기사 ID(`AKR2026...`) 순으로 날짜 폴백 추출
+- `filterByRecency()` → `sortByRecency()`로 교체: 기사를 제거하지 않고 최신순 정렬만 수행. 날짜 판단은 Claude 프롬프트에 오늘 날짜를 전달해 위임
+- Claude 선별 프롬프트에 오늘 날짜(`todayStr`) 포함: 7일 이상 지난 기사 제외 지시
+
+**일일 퀘스트 한도 비활성화 (MVP 데모)**
+
+MVP 리뷰어가 퀘스트를 자유롭게 테스트할 수 있도록 일일 한도 비활성화.
+
+| 파일 | 변경 내용 |
+|------|-----------|
+| `src/pages/quest/QuestEntry.tsx` | `limitReached = false && dailyCount >= 2` (항상 false) |
+| `src/pages/quest/QuestComplete.tsx` | `fixedLimitReached = false && !isAutoQuest && newDailyCount >= 2` (항상 false) |
+
+> 복구 시: `false &&` 접두어 제거하면 원래 2개/일 한도로 복귀.
+
+**프로덕션 DART API 프록시 (vercel.json)**
+
+Vite 개발 프록시는 빌드 결과물에 포함되지 않아 프로덕션에서 DART API CORS 오류 발생. `vercel.json` rewrites로 해결.
+
+| 파일 | 변경 내용 |
+|------|-----------|
+| `vercel.json` (신규) | `/dart-api/:path*` → `https://opendart.fss.or.kr/api/:path*` 서버사이드 프록시 |
+
+```json
+{
+  "rewrites": [
+    { "source": "/dart-api/:path*", "destination": "https://opendart.fss.or.kr/api/:path*" }
+  ]
+}
 ```
 
 ---
