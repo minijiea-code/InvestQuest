@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/dart-api/:path*",
-      "destination": "/api/dart/:path*"
+      "source": "/dart-api/list.json",
+      "destination": "/api/dart-proxy"
     },
     {
       "source": "/((?!api/).*)",
