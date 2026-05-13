@@ -21,9 +21,9 @@ interface SelectedNews {
 }
 
 const RSS_SOURCES = [
-  'https://www.hankyung.com/feed/finance',
-  'https://news.google.com/rss/search?q=주식시장+금리+경제&hl=ko&gl=KR&ceid=KR:ko',
   'https://www.fnnews.com/rss/fn_realtimeall.xml',
+  'https://news.google.com/rss/search?q=주식시장+금리+경제&hl=ko&gl=KR&ceid=KR:ko',
+  'https://www.hankyung.com/feed/finance',
 ]
 
 // ── RSS 파싱 (CDATA 지원) ──────────────────────────────────────────

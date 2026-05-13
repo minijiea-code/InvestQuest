@@ -13,7 +13,7 @@ export function NewsSummaryCard({ title, summary, date, url }: Props) {
       <div className="flex items-center gap-2 mb-3">
         <span className="text-sm">📰</span>
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">오늘의 뉴스</p>
-        <span className="ml-auto text-xs text-gray-400">한국경제 · {displayDate}</span>
+        <span className="ml-auto text-xs text-gray-400">{displayDate}</span>
       </div>
       <p className="text-xs font-medium text-gray-500 mb-2 line-clamp-1">{title}</p>
       <p className="text-sm text-gray-700 leading-relaxed">{summary}</p>
