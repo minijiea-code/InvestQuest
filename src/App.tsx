@@ -15,6 +15,7 @@ import { QuestComplete } from './pages/quest/QuestComplete'
 import { Paywall } from './pages/Paywall'
 import { PersonalityQuiz } from './pages/personality/PersonalityQuiz'
 import { PortfolioInput } from './components/investment/PortfolioInput'
+import { PreviewLecture73 } from './pages/preview/PreviewLecture73'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAppStore()
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/quest/:questId/complete" element={<ProtectedRoute><QuestComplete /></ProtectedRoute>} />
           <Route path="/paywall" element={<ProtectedRoute><Paywall /></ProtectedRoute>} />
           <Route path="/personality" element={<ProtectedRoute><PersonalityQuiz /></ProtectedRoute>} />
+          <Route path="/preview/lecture-73" element={<PreviewLecture73 />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
