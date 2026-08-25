@@ -828,3 +828,267 @@ Edge Function 내 `encryptPayload()` 함수가 다음을 수행:
 | 8 | 뉴스 퀘스트 파이프라인 | ✅ |
 | — | 고정 퀘스트 3 추가 | ✅ |
 | 10 | 푸시 알림 + 최종 다듬기 | ✅ |
+
+---
+
+## 퀘스트 콘텐츠 (앱 완성)
+
+MVP 이후 앱을 완성하기 위한 퀘스트 콘텐츠 제작 작업. 기능 개발이 아닌 학습 콘텐츠 추가.
+
+퀘스트 파일 경로: `src/data/quest_XX.json`
+시퀀스 등록: `src/data/quests.ts`의 `QUEST_SEQUENCE`
+
+---
+
+### 전체 학습 로드맵
+
+| 단계 | 제목 | Unit | 퀘스트 | 상태 |
+|------|------|------|--------|------|
+| 1단계 | 투자 기초 개념 | Unit 1 | 인플레이션과 투자의 이유 (quest_01) | ✅ |
+| 1단계 | 투자 기초 개념 | Unit 2 | 투자 자산의 종류 — 주식·채권·ETF (quest_02) | ✅ |
+| 1단계 | 투자 기초 개념 | Unit 3 | 시장 구조와 참여자 (quest_03) | ✅ |
+| 1단계 | 투자 기초 개념 | Unit 4 | 주가가 움직이는 이유 — 5가지 동인 (quest_04) | ✅ |
+| 1단계 | 투자 기초 개념 | Unit 5 | 공시와 재무제표 입문 (quest_05) | ✅ |
+| 1단계 | 투자 기초 개념 | Unit 6 | 기초 지표 개념 — PER·PBR·ROE (quest_06) | ✅ |
+| 1단계 | 투자 기초 개념 | Unit 7 | 1단계 종합 실전 — 삼성전자 초보 분석 (quest_07) | ✅ |
+| 2단계 | 산업과 시장 분석 | — | — | 대기 |
+| 3단계 | 기업 분석 심화 | — | — | 대기 |
+| 4단계 | 포트폴리오 전략 | — | — | 대기 |
+
+---
+
+### Unit 4 — 주가가 움직이는 이유 ✅
+
+**퀘스트 파일**: `src/data/quest_04.json` (13화면)
+
+**quest_04.json 화면 구성**
+
+| # | 화면 | 타입 | 특징 |
+|---|------|------|------|
+| 1 | 실적 좋은데 왜 주가 하락? | single_choice | `noReveal`: 궁금증 유발, 화면 9에서 회수 |
+| 2 | 5가지 동인 미리보기 | explanation | 이모지 카드 5개 세로 나열 |
+| 3 | 실적 vs 기대 구분 퀴즈 | single_choice | `situation`에 개념 비교 박스 |
+| 4 | 금리 동인 개념 + 퀴즈 | single_choice | `situation`에 설명 포함, 양자택일 |
+| 5 | 유동성 동인 | explanation | `characterSpeech` 말풍선 사용 |
+| 6 | 산업 성장성 퀴즈 | single_choice | 사양 vs 성장 산업 비교 |
+| 7 | 뉴스 헤드라인 → 동인 매칭 | drag_match | `preamble` + 3항목 × 3영역 |
+| 8 | 전환 — "진짜 핵심은 따로 있어" | explanation | — |
+| 9 | 어닝 서프라이즈 + 화면 1 회수 | single_choice | `situation`에 개념 설명 + 용어 정의 |
+| 10 | 가격 vs 가치 | explanation | — |
+| 11 | 타이밍보다 방향 | single_choice | `situation`에 맥락 설명 |
+| 12 | 실전 뉴스 독해 ① (금리 인상) | single_choice | `preamble` 실전 전환 알림 |
+| 13 | 실전 뉴스 독해 ② (어닝 서프라이즈) | single_choice | — |
+
+**신규 기능 (QuestScreen.tsx)**
+
+| 추가 사항 | 설명 |
+|-----------|------|
+| `ExplanationScreen` → `characterSpeech` 지원 | 설명 화면에서도 캐릭터 말풍선 렌더링 가능 |
+| `DragMatchScreen` → `preamble` 지원 | drag_match 화면 상단에 앰버 배너 표시 |
+
+**퀘스트 시퀀스 업데이트** (`src/data/quests.ts`)
+```ts
+export const QUEST_SEQUENCE = ['quest_01', 'quest_02', 'quest_03', 'quest_04']
+```
+
+---
+
+### Unit 5 — 공시와 재무제표 입문 ✅
+
+**퀘스트 파일**: `src/data/quest_05.json` (13화면)
+
+**quest_05.json 화면 구성**
+
+| # | 화면 | 타입 | 특징 |
+|---|------|------|------|
+| 1 | 유튜버 vs 블로거, 누가 맞나? | single_choice | `noReveal`: 궁금증 유발 |
+| 2 | DART 개념 도입 | explanation | 정보 비대칭(Unit 3) 복기 |
+| 3 | 1차 자료 출처 퀴즈 (4지선다) | single_choice | 화면 1 회수 |
+| 4 | 공시 유형 4가지 | explanation | 실적·유상증자·자사주 매입·M&A 이모지 카드 |
+| 5 | 유상증자 퀴즈 | single_choice | `situation`에 지분 희석 개념 설명 |
+| 6 | 자사주 매입 퀴즈 | single_choice | `situation`에 지분 농축 개념 설명 |
+| 7 | 재무제표로 전환 | explanation | — |
+| 8 | 재무제표 3표 설명 | explanation | 손익·재무상태·현금흐름 이모지 카드 |
+| 9 | 질문 → 3표 매칭 | drag_match | `preamble` + 3항목 × 3영역 |
+| 10 | 손익계산서 핵심 | explanation | `characterSpeech` + 계단식 텍스트 시각화 |
+| 11 | 재무상태표 핵심 | explanation | `characterSpeech` + ASCII 막대 (자산=부채+자본) |
+| 12 | 실전 DART ① — 손익계산서 | single_choice | **DART 모사 테이블** (삼성전자 잠정실적) |
+| 13 | 실전 DART ② — 재무상태표 | single_choice | **DART 모사 테이블** (D기업 교육용) |
+
+**신규 기능 (types/index.ts + QuestScreen.tsx)**
+
+| 추가 사항 | 설명 |
+|-----------|------|
+| `DartTableRow`, `DartTableData` 타입 추가 | `src/types/index.ts` |
+| `QuestScreenData.dartTable?: DartTableData` | single_choice 화면에 DART 모사 테이블 삽입 가능 |
+| `DartTable` 컴포넌트 | `QuestScreen.tsx` 내 렌더링. 헤더·표·단위·외부 링크 포함 |
+
+**DART 모사 테이블 구조**
+```ts
+DartTableData {
+  title: string      // 공시 제목 헤더
+  unit: string       // 단위 (원, 백만원 등)
+  rows: { label: string; value: string }[]  // 항목명 + 숫자
+  dartUrl: string    // "실제 DART에서 보기 →" 외부 링크
+}
+```
+- 화면 12: 삼성전자 잠정실적 (매출·영업이익·순이익), DART 삼성전자 페이지 링크
+- 화면 13: D기업 교육용 데이터 (총자산·총부채·자본총계), DART 메인 링크
+- Phase 2: DART API 연동으로 실시간 데이터 교체 예정
+
+**퀘스트 시퀀스 업데이트** (`src/data/quests.ts`)
+```ts
+export const QUEST_SEQUENCE = ['quest_01', 'quest_02', 'quest_03', 'quest_04', 'quest_05']
+```
+
+---
+
+### Unit 6 — 기초 지표 개념 — PER·PBR·ROE ✅
+
+**퀘스트 파일**: `src/data/quest_06.json` (13화면)
+
+**quest_06.json 화면 구성**
+
+| # | 화면 | 타입 | 특징 |
+|---|------|------|------|
+| 1 | PER 10 vs 30, 어느 쪽이 싼가? | single_choice | `noReveal`: 직관 흔들기, 화면 4에서 회수 |
+| 2 | PER·PBR·ROE 3개 미리보기 | explanation | 3개 지표 이모지 카드 |
+| 3 | PER 공식과 회수기간 직관 | explanation | 공식 + 예시 박스 |
+| 4 | A/B 기업 PER 비교 퀴즈 | single_choice | `dartTable` (A기업 PER 10 vs B기업 PER 30), 화면 1 회수 |
+| 5 | PER의 3가지 한계 | explanation | 성장성·업종·적자 기업 |
+| 6 | PBR 공식과 사례 | explanation | 청산가치 개념 + 예시 |
+| 7 | PBR 1 미만 퀴즈 | single_choice | `situation` 설명 |
+| 8 | ROE — 빌린 돈 효율 | explanation | `characterSpeech` 빌려서 장사 비유, 공식 + 예시 |
+| 9 | 3지표 → 질문 매칭 | drag_match | 3항목 × 3영역 (PER/PBR/ROE) |
+| 10 | 전환 — "숫자만 보면 함정" | explanation | — |
+| 11 | 밸류트랩 퀴즈 | single_choice | `dartTable` (E기업 석탄, `dartUrl: ""`→교육용 예시 안내) |
+| 12 | ROE 부채 부풀림 퀴즈 | single_choice | `dartTable` (F기업, `dartUrl: ""`→교육용) |
+| 13 | 달걀 격언 + 분산투자 복기 | explanation | `characterSpeech` |
+
+**신규 기능 (QuestScreen.tsx + types/index.ts)**
+
+| 추가 사항 | 설명 |
+|-----------|------|
+| `DartTableRow` 확장 | `indent?`, `bold?`, `muted?` 플래그 추가 |
+| `DartTableData` 확장 | `title2?`, `blueHeader?`, `footer?` 추가 |
+| `DartTable` — 가상 URL 처리 | `dartUrl`이 `http`로 시작하지 않으면 링크 대신 "📚 이 사례는 학습용 예시예요" 표시 |
+
+**1단계 완주 처리 (QuestComplete.tsx)**
+- `isStage1Complete`: `questId === 'quest_06'` && `localStorage.stage1_completed !== 'true'`
+- 최초 완료 시: 🏆 아이콘, "1단계 투자 기초 개념 완주!" 인디고 배너, +200 XP 완주 보너스
+- `localStorage.stage1_completed = 'true'`, `stage1_completed_at` 저장
+- 다음 카드: quest_07 예고 (인디고 카드), "1단계 진도 보기 →" 버튼
+
+**퀘스트 시퀀스 업데이트** (`src/data/quests.ts`)
+```ts
+export const QUEST_SEQUENCE = ['quest_01', 'quest_02', 'quest_03', 'quest_04', 'quest_05', 'quest_06']
+```
+
+---
+
+### Unit 7 — 1단계 종합 실전 — 삼성전자 초보 분석 ✅
+
+**퀘스트 파일**: `src/data/quest_07.json` (13화면)
+
+Unit 1~6에서 배운 개념을 삼성전자 실제 자료(2026 1분기)에 적용하는 종합 점검 퀘스트.
+증권 앱 → DART 공시 → IR 자료 → 재무제표 → 지표 순서로 회사 자료를 읽는 흐름을 익힘.
+
+**quest_07.json 화면 구성**
+
+| # | 화면 | 타입 | 패널/특징 |
+|---|------|------|-----------|
+| 1 | 1단계 마지막 퀘스트 소개 | explanation | `customPanel: company_card` (삼성전자 소개) |
+| 2 | 시가총액 의미 퀴즈 | single_choice | `customPanel: naver_stock` (시가총액·상장주식수·52주 고저) |
+| 3 | PER·EPS 해석 퀴즈 | single_choice | `preamble` + `customPanel: naver_stock` (주요 지표 탭, PER·EPS 하이라이트) |
+| 4 | 1차 자료로 전환 | explanation | `characterSpeech` "DART가 진짜 원본" |
+| 5 | 공시 유형 퀴즈 | single_choice | `customPanel: dart_disclosure` (잠정실적 공시 DART UI 모사) |
+| 6 | 영업이익 개념 퀴즈 | single_choice | `customPanel: samsung_ir` (4개 사업부 IR 실적표) |
+| 7 | 부채비율 계산 퀴즈 | single_choice | `dartTable` 재무상태표 (`indent/bold/footer` 사용) |
+| 8 | 손익계산서 계단 순서 퀴즈 | single_choice | `customPanel: income_statement` (계단 구조 매출→영업이익→순이익) |
+| 9 | 자사주 매입 공시 해석 퀴즈 | single_choice | `dartTable` 자사주 취득결과 (`blueHeader: true`, `title2`) |
+| 10 | 주요 지표 5개 점검 | explanation | `dartTable` (PER·PBR·ROE·영업이익률·부채비율) + `hint` |
+| 11 | 종합 판단 자세 퀴즈 | single_choice | 지표 안정적이어도 매수 판단은 2~4단계 필요 |
+| 12 | 문장 속 어색한 점 찾기 | single_choice | `preamble` + `situation` (친구 발언 오류 탐지) |
+| 13 | 1단계 수료 마무리 | explanation | 배운 것 vs 아직 못 하는 것 정리 |
+
+**신규 타입 및 패널 컴포넌트 (types/index.ts + QuestScreen.tsx)**
+
+```ts
+// src/types/index.ts 신규 추가
+CustomPanelData = StockPanelData | DartDisclosurePanelData | SamsungIRPanelData | IncomeStatementPanelData | CompanyCardPanelData
+
+QuestScreenData.customPanel?: CustomPanelData  // explanation/single_choice 모두 지원
+```
+
+| 패널 타입 | `panelType` | 설명 |
+|-----------|-------------|------|
+| `CompanyCardPanel` | `'company_card'` | 인디고 그라디언트 회사 소개 카드 |
+| `StockPanel` | `'naver_stock'` | 네이버증권 시세 UI 모사 (초록 헤더) |
+| `DartDisclosurePanel` | `'dart_disclosure'` | DART 전자공시 목록+내용 UI 모사 (남색 헤더) |
+| `SamsungIRPanel` | `'samsung_ir'` | 삼성 IR 사업부별 실적표 (삼성블루 헤더) |
+| `IncomeStatementPanel` | `'income_statement'` | 손익계산서 계단 구조 (indent/bold/muted 행) |
+
+**렌더링 위치 규칙**
+- `ExplanationScreen`: `title` → `customPanel` → `body` → `dartTable` → `hint` 순서
+- `ChoiceScreen`: `preamble` → `situation` → `customPanel` → `characterSpeech/title` → `dartTable` → `hint` → `choices` 순서
+- `CustomPanelRenderer` 함수가 `panelType` discriminant로 적절한 컴포넌트 디스패치
+
+**1단계 수료 처리 (QuestComplete.tsx)**
+- `isStage1Certified`: `questId === 'quest_07'` && `localStorage.stage1_certified !== 'true'`
+- 최초 완료 시: 🎓 아이콘, "1단계 수료 완료!" 옐로우 배너, +300 XP 수료 보너스
+- `localStorage.stage1_certified = 'true'`, `stage1_certified_at` 저장
+- 다음 카드: "2단계 — 산업과 시장 분석" 예고 (옐로우 카드), "2단계 시작하기 →" 버튼 (alert)
+
+**퀘스트 시퀀스 업데이트** (`src/data/quests.ts`)
+```ts
+export const QUEST_SEQUENCE = ['quest_01', 'quest_02', 'quest_03', 'quest_04', 'quest_05', 'quest_06', 'quest_07']
+```
+
+---
+
+## 검수용 프리뷰 페이지
+
+메인 퀘스트 엔진(`QUEST_SEQUENCE`)과 무관하게, 강의 콘텐츠를 회장님이 로그인 없이 바로 검수할 수 있도록 만든 독립 프리뷰 라우트. `/preview/*` 경로 하위에 페이지를 추가하는 방식으로 확장.
+
+### 73강 — 레버리지 투자에 대하여 ✅
+
+**퀘스트 파일**: `src/data/lecture-73-quest.ts` (14화면)
+
+**생성/변경된 파일**
+
+| 파일 | 역할 |
+|------|------|
+| `src/data/lecture-73-quest.ts` (신규) | 14화면 데이터 + `QuestScreen`/`MatchingPair`/`VisualBox`/`CompletionData` 타입 정의 |
+| `src/pages/preview/PreviewLecture73.tsx` (신규) | 전용 렌더러 — 메인 퀘스트 엔진(`QuestScreen.tsx`)과 독립적인 별도 컴포넌트 |
+| `src/App.tsx` | `/preview/lecture-73` 라우트 추가 (`ProtectedRoute` 미적용 — 로그인 없이 접근 가능) |
+
+**lecture-73-quest.ts 화면 구성 (14화면)**
+
+| # | 화면 | 타입 | 특징 |
+|---|------|------|------|
+| 1 | 서울대 친구는 왜 과외를 할까? | binary | `correctAnswers`가 전체 선택지 → `explanation: ''`로 정답 공개 없이 바로 다음 (도입부 궁금증 유발) |
+| 2 | 과외로 버는 돈 계산 | calculation | `visualBox`로 과외 조건 표시, 4지선다 |
+| 3 | 가성비 개념 도입 | explanation | 투입 에너지 대비 이익 |
+| 4 | 가성비 맞는 행동 고르기 | multi-select | 4개 중 해당하는 것 모두 선택 |
+| 5 | 가성비 → 바이낸스로 전환 | explanation | — |
+| 6 | 청산 시 손실 30%는 어디로? | multiple-choice | `visualBox`로 청산 자금 흐름 표시 |
+| 7 | 바이낸스 vs 증권사 수익 구조 | matching | 좌우 탭 매칭 (2쌍) |
+| 8 | 석유팀의 청산 유도 행동 | multiple-choice | `visualBox`로 청산 몰림 금액 표시 |
+| 9 | 청산 유도의 근본 원인 | multiple-choice | 화면 1의 가성비 개념과 연결 |
+| 10 | 청산되는 진짜 이유 (핵심 질문) | binary | 시장 vs 구조 관점 대비 |
+| 11 | 두 관점의 실질적 차이 | multiple-choice | `visualBox`로 관점 비교표 |
+| 12 | 장투 시 레버리지를 낮게 유지해야 하는 이유 | multiple-choice | — |
+| 13 | 고레버리지 진입 타이밍 | multiple-choice | 순간 상승추세 + 초단타 원칙 |
+| 14 | 복습 완료 | completion | 요약 카드 3개 + 최종 메시지 |
+
+**PreviewLecture73.tsx 구조**
+- 메인 퀘스트 엔진과 별도의 자체 `ScreenRenderer` — `binary`/`multiple-choice`/`calculation`은 `ChoiceScreen`으로, `multi-select`는 `MultiSelectScreen`, `matching`은 `MatchingScreen`, `explanation`은 `ExplanationScreen`, `completion`은 `CompletionScreen`으로 분기
+- 진행 상태를 `localStorage['preview-lecture-73-progress']`에 저장 — 새로고침해도 이어보기 가능
+- 상단 "처음부터" 버튼으로 언제든 리셋 가능
+- 상단 배너: "🔒 회장님 검수용 프리뷰 — 이 페이지의 진행은 통계에 반영되지 않습니다" (메인 앱 통계에 영향 없음을 명시)
+
+> ℹ️ **메인 앱과의 관계**: `QUEST_SEQUENCE`에 등록되지 않은 독립 페이지. 일반 사용자에게는 노출되지 않고, `/preview/lecture-73` URL을 직접 아는 사람만 접근 가능.
+
+**배포**
+- `feat: add lecture 73 leverage quest preview page` 커밋으로 `main`에 push → Vercel 자동 배포(GitHub 연동) → `https://miniinvestquest.vercel.app/preview/lecture-73`
+- `fix: remove KakaoTalk feedback card from lecture 73 preview` 커밋에서 완료 화면(화면 14)의 "이 퀘스트에 대한 의견이나 수정 요청은 [지애 카카오톡]으로 부탁드립니다" 카드 제거
