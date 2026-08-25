@@ -599,11 +599,6 @@ function CompletionScreen({ screen }: { screen: QuestScreen }) {
           {data.finalMessage}
         </p>
       </div>
-
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-sm text-amber-800 text-center">
-        이 퀘스트에 대한 의견이나 수정 요청은{' '}
-        <strong>[지애 카카오톡]</strong>으로 부탁드립니다.
-      </div>
     </div>
   )
 }
