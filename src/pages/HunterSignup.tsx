@@ -1,16 +1,20 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { useAppStore } from '../store/useAppStore'
-import { signUpHunterProfile, type HunterProfile } from '../lib/hunterProfile'
+import { signUpHunterProfile, loginHunterProfile, type HunterProfile } from '../lib/hunterProfile'
 
 export function HunterSignup() {
+  const [params] = useSearchParams()
+  const isLogin = params.get('mode') === 'login'
   const navigate = useNavigate()
   const { setHunterProfile } = useAppStore()
 
   const [cohort, setCohort] = useState('')
   const [name, setName] = useState('')
   const [gender, setGender] = useState<HunterProfile['gender']>('unspecified')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -19,7 +23,9 @@ export function HunterSignup() {
     setError('')
     setLoading(true)
     try {
-      const profile = await signUpHunterProfile({ cohort, name, gender })
+      const profile = isLogin
+        ? await loginHunterProfile({ email, password })
+        : await signUpHunterProfile({ cohort, name, gender, email, password })
       setHunterProfile(profile)
       navigate('/home')
     } catch (err: unknown) {
@@ -32,58 +38,91 @@ export function HunterSignup() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-1 flex flex-col justify-center px-6 max-w-lg mx-auto w-full">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">더헌터스에 오신 걸 환영해요!</h2>
-        <p className="text-gray-500 mb-8">기수, 이름, 성별만 알려주세요</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          {isLogin ? '다시 만나서 반가워요!' : '더헌터스에 오신 걸 환영해요!'}
+        </h2>
+        <p className="text-gray-500 mb-8">
+          {isLogin ? '이메일로 로그인하세요' : '기수, 이름, 성별과 이메일을 알려주세요'}
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!isLogin && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">기수</label>
+                <input
+                  type="text"
+                  value={cohort}
+                  onChange={(e) => setCohort(e.target.value)}
+                  placeholder="예: 8기"
+                  required
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="이름을 입력하세요"
+                  required
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">성별</label>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      { value: 'male', label: '남' },
+                      { value: 'female', label: '여' },
+                      { value: 'unspecified', label: '응답 안 함' },
+                    ] as const
+                  ).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setGender(opt.value)}
+                      className={`flex-1 py-3 rounded-2xl border-2 text-sm font-medium transition-all ${
+                        gender === opt.value
+                          ? 'border-primary bg-indigo-50 text-primary'
+                          : 'border-gray-200 bg-white text-gray-600'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">기수</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
             <input
-              type="text"
-              value={cohort}
-              onChange={(e) => setCohort(e.target.value)}
-              placeholder="예: 8기"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@email.com"
               required
               className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
             <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="이름을 입력하세요"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="6자 이상"
               required
+              minLength={6}
               className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">성별</label>
-            <div className="flex gap-2">
-              {(
-                [
-                  { value: 'male', label: '남' },
-                  { value: 'female', label: '여' },
-                  { value: 'unspecified', label: '응답 안 함' },
-                ] as const
-              ).map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setGender(opt.value)}
-                  className={`flex-1 py-3 rounded-2xl border-2 text-sm font-medium transition-all ${
-                    gender === opt.value
-                      ? 'border-primary bg-indigo-50 text-primary'
-                      : 'border-gray-200 bg-white text-gray-600'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
           </div>
 
           {error && (
@@ -91,9 +130,20 @@ export function HunterSignup() {
           )}
 
           <Button type="submit" fullWidth size="lg" disabled={loading}>
-            {loading ? '처리 중...' : '시작하기'}
+            {loading ? '처리 중...' : isLogin ? '로그인' : '시작하기'}
           </Button>
         </form>
+
+        <p className="text-center text-sm text-gray-500 mt-6">
+          {isLogin ? '계정이 없으신가요?' : '이미 계정이 있으신가요?'}
+          {' '}
+          <button
+            onClick={() => navigate(`/auth?mode=${isLogin ? 'signup' : 'login'}`)}
+            className="text-primary font-semibold"
+          >
+            {isLogin ? '가입하기' : '로그인'}
+          </button>
+        </p>
       </div>
     </div>
   )
