@@ -23,6 +23,11 @@ function cacheHunterProfile(profile: HunterProfile) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profile))
 }
 
+export async function logoutHunterProfile(): Promise<void> {
+  await supabase.auth.signOut()
+  localStorage.removeItem(STORAGE_KEY)
+}
+
 export async function signUpHunterProfile(input: {
   cohort: string
   name: string

@@ -8,6 +8,7 @@ import { useAppStore } from '../store/useAppStore'
 import { useCurriculumStage } from '../hooks/useCurriculumStage'
 import { useLectureProgress } from '../hooks/useLectureProgress'
 import { useMarketIndices } from '../hooks/useMarketIndices'
+import { logoutHunterProfile } from '../lib/hunterProfile'
 
 // 오늘의 시장 — 실시간 조회 실패 시 폴백으로 쓰는 더미 값
 const FALLBACK_MARKET_ITEMS = [
@@ -22,7 +23,7 @@ const FALLBACK_MARKET_ITEMS = [
 
 export function HunterCurriculumHome() {
   const navigate = useNavigate()
-  const { hunterProfile } = useAppStore()
+  const { hunterProfile, setHunterProfile } = useAppStore()
   const { stage } = useCurriculumStage()
   const { completedLectureIds, loading } = useLectureProgress(hunterProfile?.id ?? null)
   const { items: marketItems, loading: marketLoading } = useMarketIndices()
@@ -63,10 +64,21 @@ export function HunterCurriculumHome() {
     navigate(`/quest/lecture/${lecture.id}`)
   }
 
+  async function handleLogout() {
+    await logoutHunterProfile()
+    setHunterProfile(null)
+    navigate('/')
+  }
+
   return (
     <PageLayout showNav={false}>
       <div className="px-4 pt-6 pb-4">
-        <h1 className="text-xl font-bold text-gray-900">더헌터스 신입 부원 커리큘럼</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gray-900">더헌터스 신입 부원 커리큘럼</h1>
+          <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-gray-600 shrink-0">
+            {hunterProfile?.name ? `${hunterProfile.name}님 · ` : ''}로그아웃
+          </button>
+        </div>
         <div className="mt-3 flex items-center gap-3">
           <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
             <div

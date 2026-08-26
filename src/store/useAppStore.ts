@@ -50,7 +50,8 @@ export function useAppState() {
       const cached = loadCachedHunterProfile()
       if (cached) setHunterProfile(cached)
       loadHunterProfileFromSession().then((profile) => {
-        if (profile) setHunterProfile(profile)
+        // profile이 null이면(세션 만료·삭제된 프로필 등) 캐시가 있었더라도 명시적으로 로그아웃 처리한다.
+        setHunterProfile(profile)
         setAuthLoading(false)
       })
       return
