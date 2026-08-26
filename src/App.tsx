@@ -46,6 +46,15 @@ function QuestRouteGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+// 이미 프로필이 있는(로그인된) 방문자가 다시 /auth로 들어오면 회원가입 폼 대신 홈으로 보낸다.
+// 이게 없으면 재방문 때마다 signUpHunterProfile()이 새 익명 계정 + 새 프로필을 만들어버린다.
+function AuthRouteGate({ children }: { children: React.ReactNode }) {
+  const { user, hunterProfile } = useAppStore()
+  const alreadySignedIn = FEATURES.minimalSignup ? !!hunterProfile : !!user
+  if (alreadySignedIn) return <Navigate to="/home" replace />
+  return <>{children}</>
+}
+
 export default function App() {
   const state = useAppState()
 
@@ -62,7 +71,10 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={FEATURES.minimalSignup ? <HunterSignup /> : <Auth />} />
+          <Route
+            path="/auth"
+            element={<AuthRouteGate>{FEATURES.minimalSignup ? <HunterSignup /> : <Auth />}</AuthRouteGate>}
+          />
           <Route
             path="/onboarding/step1"
             element={<FlagGate flag={FEATURES.onboardingDiagnosis}><Step1Experience /></FlagGate>}
