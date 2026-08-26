@@ -21,6 +21,7 @@ import { HunterSignup } from './pages/HunterSignup'
 import { HunterCurriculumHome } from './pages/HunterCurriculumHome'
 import { HunterQuestPage } from './pages/quest/HunterQuestPage'
 import { CurriculumComplete } from './pages/CurriculumComplete'
+import { AdminCurriculum } from './pages/AdminCurriculum'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, hunterProfile } = useAppStore()
@@ -138,6 +139,7 @@ export default function App() {
             element={<ProtectedRoute><FlagGate flag={FEATURES.onboardingDiagnosis}><PersonalityQuiz /></FlagGate></ProtectedRoute>}
           />
           <Route path="/preview/lecture-73" element={<PreviewLecture73 />} />
+          <Route path="/admin" element={<AdminCurriculum />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

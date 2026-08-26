@@ -1221,3 +1221,21 @@ create table hunter_profiles (
 - ℹ️ 강의 5개 퀘스트 콘텐츠는 전부 "퀘스트 준비 중" 플레이스홀더 — 회장님 강의 자료 받으면 `src/data/hunter-quest-*.ts` 파일만 채우면 됨
 - ℹ️ `curriculum_settings.current_stage`는 테스트 후 `1`로 리셋해둠 (배포 시 초기값)
 - ℹ️ git commit/push, Vercel 배포는 아직 안 함
+
+### 회장 전용 커리큘럼 관리자 페이지 (`/admin`) — 2026-08-26 추가
+
+`curriculum_settings.current_stage`가 테스트 후 `5`(전체 열림)로 남아있던 걸 발견 → `1`로 리셋(조건부확률만 열림). 회장이 매번 개발자에게 요청하지 않고 직접 다음 강의를 열 수 있도록 PIN 보호 관리자 페이지 추가.
+
+**동작 방식**
+- `src/pages/AdminCurriculum.tsx` — 어디에도 링크 노출 안 함, URL(`/admin`)을 아는 사람만 접근. `ProtectedRoute` 안 씀(로그인 불필요, PIN 자체가 보호 수단).
+- `api/admin-set-stage.ts` (Vercel 서버리스 함수) — PIN을 서버 환경변수 `ADMIN_PIN`과 대조 후, `SUPABASE_SERVICE_ROLE_KEY`로 `curriculum_settings.current_stage`를 갱신. RLS는 `authenticated`에게 SELECT만 허용하고 UPDATE는 `service_role`만 가능하도록 의도적으로 막아뒀기 때문에, 이 서버리스 함수가 유일한 갱신 경로.
+- 강의 목록에서 강의 하나를 누르면 그 강의의 `stage` 값으로 `current_stage`를 바로 설정 (그 이전 강의까지 전부 열림).
+
+**필요한 환경변수 (Vercel 프로젝트 설정에만, 로컬 `.env`에는 넣지 않음)**
+```
+ADMIN_PIN=회장님께 알려줄 PIN
+SUPABASE_SERVICE_ROLE_KEY=Supabase 대시보드 → Project Settings → API Keys → service_role
+```
+`.env.example`에 플레이스홀더 추가해둠. `VITE_` 접두어가 없으므로 클라이언트 번들에 포함되지 않고 서버리스 함수 안에서만 읽힘.
+
+> ⚠️ **로컬 개발 서버(`npm run dev` = vite)에서는 `/api/*` 서버리스 함수가 동작하지 않음** — `dart-proxy.ts`/`market-indices.ts`와 같은 이유로 Vercel 배포 환경(프로덕션 또는 프리뷰)에서만 테스트 가능. `AdminCurriculum.tsx` UI 자체는 로컬에서도 렌더링되지만 "확인" 버튼을 누르면 404.
