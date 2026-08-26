@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom'
+import { FEATURES } from '../../config/features'
 
 const tabs = [
   { to: '/home', label: '홈', icon: HomeIcon },
-  { to: '/explore', label: '탐색', icon: SearchIcon },
-  { to: '/portfolio', label: '내 투자', icon: ChartIcon },
+  ...(FEATURES.exploreTab ? [{ to: '/explore', label: '탐색', icon: SearchIcon }] : []),
+  ...(FEATURES.portfolioTab ? [{ to: '/portfolio', label: '내 투자', icon: ChartIcon }] : []),
 ]
 
 export function BottomNav() {

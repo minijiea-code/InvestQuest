@@ -11,6 +11,7 @@ import stocksData from '../data/stocks.json'
 import { Stock } from '../types'
 import { LoadingState } from '../components/common/LoadingState'
 import { ErrorState } from '../components/common/ErrorState'
+import { FEATURES } from '../config/features'
 
 const STOCKS_MAP = new Map<string, Stock>((stocksData as Stock[]).map(s => [s.code, s]))
 
@@ -47,6 +48,30 @@ export function Portfolio() {
   const { portfolio, loading, error, removeStock } = usePortfolio(user?.id)
   const navigate = useNavigate()
   const [editMode, setEditMode] = useState(false)
+
+  // 러너 모드: 전체 기능 대신 플레이스홀더만 노출 (탭 자체는 유지)
+  if (FEATURES.investmentTabPlaceholder && !FEATURES.investmentTabFullFeatures) {
+    return (
+      <PageLayout>
+        <div className="px-4 pt-6 pb-8">
+          <h1 className="text-xl font-bold text-gray-900 mb-6">내 투자</h1>
+          <div className="flex flex-col items-center justify-center text-center py-20">
+            <span className="text-5xl mb-4">📊</span>
+            <p className="text-base font-semibold text-gray-700 mb-2">
+              모의투자 참여 시 이용 가능합니다
+            </p>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              부원님들의 모의투자 대회 참여
+              <br />
+              현황과 수익률 관리 기능이
+              <br />
+              준비 중입니다.
+            </p>
+          </div>
+        </div>
+      </PageLayout>
+    )
+  }
 
   const personality = user?.personality_diagnosis_completed
     ? getPersonalityLabel(user.investment_purpose, user.investment_style_type)

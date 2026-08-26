@@ -5,6 +5,10 @@
       "destination": "/api/dart-proxy"
     },
     {
+      "source": "/yahoo-api/chart/:symbol",
+      "destination": "/api/market-indices?symbol=:symbol"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

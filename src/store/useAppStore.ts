@@ -1,14 +1,18 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { UserProfile, OnboardingState, QuestProgress } from '../types'
 import { supabase } from '../lib/supabase'
+import { FEATURES } from '../config/features'
+import { loadCachedHunterProfile, loadHunterProfileFromSession, type HunterProfile } from '../lib/hunterProfile'
 
 interface AppState {
   user: UserProfile | null
+  hunterProfile: HunterProfile | null
   sessionId: string | null
   authLoading: boolean
   onboarding: OnboardingState
   questProgress: QuestProgress | null
   setUser: (user: UserProfile | null) => void
+  setHunterProfile: (profile: HunterProfile | null) => void
   setOnboarding: (data: Partial<OnboardingState>) => void
   setQuestProgress: (progress: QuestProgress | null) => void
 }
@@ -34,12 +38,24 @@ export function useAppStore() {
 
 export function useAppState() {
   const [user, setUser] = useState<UserProfile | null>(null)
+  const [hunterProfile, setHunterProfile] = useState<HunterProfile | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [onboarding, setOnboardingState] = useState<OnboardingState>(defaultOnboarding)
   const [questProgress, setQuestProgress] = useState<QuestProgress | null>(null)
 
   useEffect(() => {
+    if (FEATURES.minimalSignup) {
+      // 러너 모드: 익명 세션 기반 hunter_profiles 조회 (localStorage 캐시 우선 사용)
+      const cached = loadCachedHunterProfile()
+      if (cached) setHunterProfile(cached)
+      loadHunterProfileFromSession().then((profile) => {
+        if (profile) setHunterProfile(profile)
+        setAuthLoading(false)
+      })
+      return
+    }
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
         setSessionId(session.user.id)
@@ -68,5 +84,16 @@ export function useAppState() {
   const setOnboarding = (data: Partial<OnboardingState>) =>
     setOnboardingState(prev => ({ ...prev, ...data }))
 
-  return { user, sessionId, authLoading, onboarding, questProgress, setUser, setOnboarding, setQuestProgress }
+  return {
+    user,
+    hunterProfile,
+    sessionId,
+    authLoading,
+    onboarding,
+    questProgress,
+    setUser,
+    setHunterProfile,
+    setOnboarding,
+    setQuestProgress,
+  }
 }

@@ -1092,3 +1092,132 @@ export const QUEST_SEQUENCE = ['quest_01', 'quest_02', 'quest_03', 'quest_04', '
 **배포**
 - `feat: add lecture 73 leverage quest preview page` 커밋으로 `main`에 push → Vercel 자동 배포(GitHub 연동) → `https://miniinvestquest.vercel.app/preview/lecture-73`
 - `fix: remove KakaoTalk feedback card from lecture 73 preview` 커밋에서 완료 화면(화면 14)의 "이 퀘스트에 대한 의견이나 수정 요청은 [지애 카카오톡]으로 부탁드립니다" 카드 제거
+
+---
+
+## 더헌터스 신입 부원 교육 러너 모드 (Feature Flag 전환) 🚧 작업 중 (미커밋)
+
+원래 방향(매일 학습 루틴 앱)을 유지한 채, 투자 동아리 "더헌터스" 신입 부원 온보딩용으로 앱을 임시 전환. **기존 코드는 하나도 삭제하지 않고** `src/config/features.ts` 하나로 켜고 끌 수 있게 만듦 — 나중에 전부 `true`로 되돌리면 원래 앱으로 복귀.
+
+> ⚠️ **아직 git commit/push 안 함**. 아래 변경사항은 전부 워킹 디렉터리에만 있음 (`git status`로 확인 가능). `/preview/lecture-73`은 이 작업 과정에서 전혀 건드리지 않음.
+
+### Feature Flag 시스템
+
+`src/config/features.ts` — 앱의 모든 기능을 이 객체 하나로 on/off. 사용법: `{FEATURES.streak && <StreakDisplay />}`.
+
+| Flag | 값 | 의미 |
+|------|-----|------|
+| `streak`, `onboardingDiagnosis`, `dailyQuestLimit`, `pushNotifications`, `rankingSystem`, `newsQuestAutoGeneration`, `investmentTabFullFeatures`, `aiFloatingButton`, `ocrPortfolioInput`, `legacyQuests`, `exploreComingSoonTeasers`, `exploreTab`, `portfolioTab` | `false` | 러너 모드에서 끔 |
+| `hunterCurriculumHome`, `investmentTabPlaceholder`, `completionCelebration`, `minimalSignup` | `true` | 러너 모드 전용 기능 |
+| `questCompletionTracking`, `lecture73Preview` | `true` | 항상 켬 |
+
+**적용 방식**: 대부분 `Home.tsx`/`Explore.tsx`/`PersonalityQuiz.tsx` 등 기존 파일은 **한 줄도 안 건드림** — `App.tsx`의 라우트 단에서 통째로 갈아끼우거나(`/home`, `/auth`) `FlagGate`로 감싸서 flag가 꺼지면 `/home`으로 리다이렉트하는 방식(라우트 자체가 도달 불가능해지므로 내부 컴포넌트는 손댈 필요 없음). 예외적으로 `Portfolio.tsx`(탭은 유지, 내용만 플레이스홀더로 조기 반환), `BottomNav.tsx`(탭 목록 조건부), `Explore.tsx`(Coming Soon 섹션만 조건부)만 최소한으로 직접 수정.
+
+```tsx
+// App.tsx
+function FlagGate({ flag, children }) {
+  if (!flag) return <Navigate to="/home" replace />
+  return children
+}
+// /quest/:questId 는 예전 고정 퀘스트와 뉴스 퀘스트(quest_auto_*)가 경로를 공유하므로
+// legacyQuests flag 대신 questId 값을 보고 판단하는 QuestRouteGate를 따로 씀
+```
+
+> ℹ️ **`/quest/lecture/:lectureId`는 `/quest/:questId`가 아님**: 새 강의 퀘스트 라우트는 기존 고정 퀘스트 3단계 엔진(`QuestEntry`→`QuestScreen`→`QuestComplete`)과 경로가 겹치지 않도록 `/quest/lecture/:lectureId`라는 별도 경로를 씀. 기존 퀘스트 엔진 파일은 전혀 수정하지 않음.
+
+### Supabase 스키마 추가 (5개 테이블, 전부 적용 완료)
+
+프로젝트: `fyplzsixbwoovfwhkxzr` (`min-jiae-s-projects`). 마이그레이션 파일: `supabase/migrations/20260825_create_{curriculum_settings,hunter_profiles,hunter_completions,quest_attempts,quest_answers}.sql`.
+
+```sql
+-- curriculum_settings: 회장이 조정하는 잠금해제 단계값 (1~3), 앱 전체가 이 값을 읽음
+create table curriculum_settings (
+  id serial primary key,
+  current_stage integer not null default 1,
+  updated_at timestamptz default now()
+);
+-- SELECT는 authenticated 전체 허용
+
+-- hunter_profiles: id = 익명 세션의 auth.uid() (별도 FK 컬럼 아님 — RLS를 auth.uid() = id로 단순화)
+create table hunter_profiles (
+  id uuid primary key,
+  cohort text not null, name text not null, gender text,
+  created_at timestamptz default now()
+);
+
+-- hunter_completions, quest_attempts, quest_answers: 기존 CLAUDE.md 명세와 동일 구조
+-- 전부 auth.uid() 기반 owner-only RLS + GRANT ALL TO authenticated/service_role (이 프로젝트 관례대로)
+```
+
+> ⚠️ **RLS 확인**: 5개 테이블 전부 `get_advisors`(security)로 검사, 누락 없음.
+>
+> ⚠️ **Supabase 대시보드에서 수동으로 켜야 하는 것 2개** (API로 불가능, 이 리포의 "이메일 인증 OFF" 관례와 같은 종류의 수동 설정):
+> 1. Authentication → Sign In / Providers → **Allow anonymous sign-ins** ON
+> 2. 같은 화면의 **Allow new users to sign up** ON (익명 로그인도 "신규 사용자 생성"이라 이게 꺼져 있으면 같이 막힘)
+
+### 인증 모델: 익명 세션
+
+이메일/비밀번호 없이 기수·이름·성별만 받기 위해 `supabase.auth.signInAnonymously()` 사용. `hunter_profiles.id`를 그 세션의 `auth.uid()`로 그대로 씀 (랜덤 UUID 아님) → 모든 새 테이블의 RLS를 `auth.uid() = id`(또는 `= profile_id`)로 단순하게 걸 수 있음.
+
+> ⚠️ **기기 종속적**: 이 방식은 세션이 브라우저/기기에 묶임 — 다른 기기나 브라우저 데이터 삭제 후엔 "로그인"으로 이전 계정에 복귀할 방법이 없음(비밀번호가 없어서 본인 확인 불가). 로그인/회원가입 화면을 굳이 다르게 만들지 않기로 결정함(같은 폼 그대로 유지) — 필요해지면 PIN 등 최소 인증 수단 추가 검토.
+
+- `src/lib/hunterProfile.ts` — `signUpHunterProfile()`, `loadHunterProfileFromSession()`, localStorage 캐시(`hunter_profile` 키)
+- `src/store/useAppStore.ts` — 기존 `user`(이메일 프로필) 로직은 그대로 두고, `FEATURES.minimalSignup`일 때만 별도 분기로 `hunterProfile` 부트스트랩
+
+### 새로 생성한 파일
+
+| 파일 | 역할 |
+|------|------|
+| `src/config/features.ts` | Feature flag 중앙 관리 |
+| `src/data/hunter-curriculum.ts` | 5개 강의 메타데이터 (`id`/`order`/`stage`/`title`/`estimatedMinutes`) |
+| `src/data/hunter-quest-{conditional-probability,basic-1,basic-2,advanced-1,advanced-2}.ts` | 강의별 퀘스트 데이터, 타입은 `lecture-73-quest.ts`에서 그대로 import(재정의 안 함). 현재 전부 "퀘스트 준비 중" 플레이스홀더 1화면 |
+| `src/data/hunter-quest-map.ts` | lectureId → `QuestScreen[]` 맵 |
+| `src/lib/hunterProfile.ts` | 익명 인증 + 프로필 upsert + localStorage 캐시 |
+| `src/hooks/useCurriculumStage.ts` | `curriculum_settings.current_stage` 조회 |
+| `src/hooks/useLectureProgress.ts` | `quest_attempts`/`quest_answers` CRUD (완료 강의 목록, 시도 시작/답변 기록/완료 처리) |
+| `src/hooks/useMarketIndices.ts` | Yahoo Finance 실시간 지수 조회 (아래 참고) |
+| `src/components/quest/HunterQuestRenderer.tsx` | `PreviewLecture73.tsx`의 화면 렌더러를 **이식**(원본은 수정 안 함)한 재사용 컴포넌트 |
+| `src/components/CurriculumTree.tsx` | 좌우 지그재그 강의 트리 + SVG 곡선 커넥터 (아래 참고) |
+| `src/pages/HunterCurriculumHome.tsx` | 러너 모드 홈 (트리 + 오늘의 시장) |
+| `src/pages/HunterSignup.tsx` | 기수/이름/성별 회원가입 폼 |
+| `src/pages/quest/HunterQuestPage.tsx` | `/quest/lecture/:lectureId` — 강의 퀘스트 플레이 화면 |
+| `src/pages/CurriculumComplete.tsx` | 5개 완주 축하 화면 (`canvas-confetti`) |
+| `api/market-indices.ts` | Yahoo Finance 프록시 (배포용, `api/dart-proxy.ts`와 동일 패턴) |
+
+### 변경한 기존 파일
+
+| 파일 | 변경 내용 |
+|------|-----------|
+| `src/App.tsx` | `FlagGate`/`QuestRouteGate` 헬퍼 추가, `/home`·`/auth` 조건부 컴포넌트 스왑, 그 외 라우트는 flag로 감싸기. `/preview/lecture-73` 줄은 무변경 |
+| `src/store/useAppStore.ts` | `hunterProfile` 상태 + `FEATURES.minimalSignup` 분기 추가 (기존 분기는 그대로) |
+| `src/components/layout/BottomNav.tsx` | `exploreTab`/`portfolioTab` flag로 탭 조건부 렌더링 |
+| `src/pages/Portfolio.tsx` | 상단에 플레이스홀더 조기 `return` 추가 (본문 로직은 그대로 아래에 남아있음) |
+| `src/pages/Explore.tsx` | "곧 추가될 콘텐츠" 섹션을 `FEATURES.exploreComingSoonTeasers`로 감쌈 |
+| `vite.config.ts`, `vercel.json`, `package.json` | Yahoo Finance 프록시 설정 + `canvas-confetti` 의존성 추가 |
+
+### 홈 화면 구성 — 여러 차례 조정됨
+
+회장 요청 → 지애 피드백을 거치며 최종적으로:
+1. **하단 탭바 없음** — 처음엔 홈/탐색/내투자 3탭이었다가 → 탐색 유지 요청 → 결국 **탐색·내투자 탭 둘 다 제거**, 홈 하나로 통합 (`portfolioTab`/`exploreTab` flag 둘 다 `false`, `HunterCurriculumHome`은 `PageLayout showNav={false}`)
+2. **뉴스 퀘스트**: 한때 홈에 넣었다가(탐색 탭 대체용) 다시 제거 결정 — 현재 홈에 없음
+3. **최종 홈 구성**: 커리큘럼 트리 → "오늘의 시장" 카드 (아래)
+
+**커리큘럼 트리 시각화**: 처음엔 `margin-left` 값(0/64px/96px/64px)만 살짝 주는 좁은 지그재그였는데 오른쪽이 너무 비어 보인다는 피드백 → **`justify-start`/`justify-end` 완전 좌우 교차**로 화면 폭을 거의 다 쓰도록 변경. 연결선도 처음엔 가운데 고정 직선이었다가 → 실제 각 노드 원형 아이콘 중심을 **`getBoundingClientRect()`로 실측**해서 그 좌표를 잇는 SVG 베지어 곡선으로 교체 (`useLayoutEffect` + `resize` 리스너로 반응형 재계산). 하드코딩된 좌표가 전혀 없어서 카드 텍스트 길이가 바뀌거나 강의 개수가 늘어도 항상 정확히 맞물림.
+
+### 오늘의 시장 — Yahoo Finance 실시간 연동
+
+원래 `Home.tsx`엔 코스피/코스닥/원달러 3개 더미 카드가 있었음. 요청에 따라 **다우·나스닥·S&P500·유가(WTI)·코스피·코스닥·원달러 7개**로 확장하고 실시간 연동:
+
+- 심볼: `^DJI`, `^IXIC`, `^GSPC`, `CL=F`, `^KS11`, `^KQ11`, `KRW=X`
+- **처음엔 `v7/finance/quote` 엔드포인트로 시도했으나 401(인증 필요)로 막혀있었음** — 실제 테스트로 확인. 인증 없이 열려있는 **`v8/finance/chart/{symbol}`**로 교체 (심볼 하나씩 개별 요청, 7개 병렬)
+- 프록시 구조는 `api/dart-proxy.ts`와 완전히 동일한 패턴: 개발은 `vite.config.ts`의 `/yahoo-api` 프록시가 Yahoo에 직접 요청, 배포는 `vercel.json` rewrite → `api/market-indices.ts` 서버리스 함수
+- 조회 실패 시 `FALLBACK_MARKET_ITEMS` 더미 값으로 자동 폴백 (카드 우상단 라벨이 "Yahoo Finance" ↔ "더미 데이터"로 바뀜)
+
+> ⚠️ **비공식 엔드포인트**: Yahoo 공식 공개 API가 아니라서 예고 없이 막힐 수 있음. 그럴 경우 폴백 더미 값으로 자연스럽게 전환되므로 화면이 깨지진 않지만, 실시간 데이터가 안 뜨면 이 엔드포인트가 또 막혔다는 뜻.
+
+### 알려진 이슈 / 결정 사항
+
+- ⚠️ **React StrictMode 이중 실행 버그 수정**: `HunterQuestPage.tsx`가 개발 모드에서 `quest_attempts`를 두 번 insert하던 문제 발견 → `attemptStartedRef`로 가드 처리해서 수정 (프로덕션 빌드에선 원래 안 나타나는 문제였지만, 데이터 정합성을 위해 개발 모드에서도 고침)
+- ℹ️ 강의 5개 퀘스트 콘텐츠는 전부 "퀘스트 준비 중" 플레이스홀더 — 회장님 강의 자료 받으면 `src/data/hunter-quest-*.ts` 파일만 채우면 됨
+- ℹ️ `curriculum_settings.current_stage`는 테스트 후 `1`로 리셋해둠 (배포 시 초기값)
+- ℹ️ git commit/push, Vercel 배포는 아직 안 함

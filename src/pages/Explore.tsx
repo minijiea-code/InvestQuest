@@ -4,6 +4,7 @@ import { NewsQuestCard } from '../components/explore/NewsQuestCard'
 import { useNewsQuest } from '../hooks/useNewsQuest'
 import { LoadingState } from '../components/common/LoadingState'
 import { ErrorState } from '../components/common/ErrorState'
+import { FEATURES } from '../config/features'
 
 function isNewsQuestDoneToday(): boolean {
   const today = new Date().toISOString().split('T')[0]
@@ -53,29 +54,31 @@ export function Explore() {
         )}
 
         {/* Coming Soon */}
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-            곧 추가될 콘텐츠
-          </p>
-          <div className="space-y-3">
-            {[
-              { icon: '🗺️', title: '학습 경로 지도', desc: '내 수준에 맞는 학습 순서를 제안해드려요' },
-              { icon: '🏆', title: '레벨 순위', desc: '다른 학습자와 비교해보세요' },
-              { icon: '📊', title: '산업별 탐색', desc: '관심 섹터의 핵심 개념을 익혀보세요' },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="flex items-center gap-4 bg-gray-50 rounded-2xl p-4 opacity-50"
-              >
-                <span className="text-2xl shrink-0">{item.icon}</span>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">{item.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
+        {FEATURES.exploreComingSoonTeasers && (
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              곧 추가될 콘텐츠
+            </p>
+            <div className="space-y-3">
+              {[
+                { icon: '🗺️', title: '학습 경로 지도', desc: '내 수준에 맞는 학습 순서를 제안해드려요' },
+                { icon: '🏆', title: '레벨 순위', desc: '다른 학습자와 비교해보세요' },
+                { icon: '📊', title: '산업별 탐색', desc: '관심 섹터의 핵심 개념을 익혀보세요' },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="flex items-center gap-4 bg-gray-50 rounded-2xl p-4 opacity-50"
+                >
+                  <span className="text-2xl shrink-0">{item.icon}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">{item.title}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
     </PageLayout>
