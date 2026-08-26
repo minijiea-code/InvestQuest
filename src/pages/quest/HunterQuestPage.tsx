@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { HunterQuestRenderer } from '../../components/quest/HunterQuestRenderer'
 import { HUNTER_QUEST_MAP } from '../../data/hunter-quest-map'
 import { HUNTER_CURRICULUM } from '../../data/hunter-curriculum'
 import { useAppStore } from '../../store/useAppStore'
 import { useLectureProgress } from '../../hooks/useLectureProgress'
+import { useCurriculumStage } from '../../hooks/useCurriculumStage'
 import { supabase } from '../../lib/supabase'
 
 export function HunterQuestPage() {
@@ -13,9 +14,11 @@ export function HunterQuestPage() {
   const { hunterProfile } = useAppStore()
   const profileId = hunterProfile?.id ?? null
   const { startAttempt, recordAnswer, completeAttempt } = useLectureProgress(profileId)
+  const { stage, loading: stageLoading } = useCurriculumStage()
 
   const screens = (lectureId && HUNTER_QUEST_MAP[lectureId]) || []
   const lecture = HUNTER_CURRICULUM.find((l) => l.id === lectureId)
+  const isLocked = !stageLoading && !!lecture && lecture.stage > stage
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -29,12 +32,13 @@ export function HunterQuestPage() {
 
   useEffect(() => {
     if (!lectureId || attemptStartedRef.current === lectureId) return
+    if (stageLoading || isLocked) return
     attemptStartedRef.current = lectureId
     startAttempt(lectureId).then((id) => {
       attemptIdRef.current = id
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lectureId])
+  }, [lectureId, stageLoading, isLocked])
 
   useEffect(() => {
     setSelectedIds([])
@@ -118,6 +122,18 @@ export function HunterQuestPage() {
       recordAnswer(attemptIdRef.current, screen.id, selectedIds, isAllCorrect)
     }
     setRevealed(true)
+  }
+
+  if (stageLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-400 text-sm">불러오는 중...</div>
+      </div>
+    )
+  }
+
+  if (isLocked) {
+    return <Navigate to="/home" replace />
   }
 
   if (!screen) {

@@ -82,7 +82,8 @@ export function AdminCurriculum() {
       <div className="max-w-sm mx-auto space-y-4">
         <h1 className="text-lg font-bold text-gray-900">커리큘럼 관리자</h1>
         <p className="text-sm text-gray-500">
-          강의를 누르면 해당 강의까지(그 이전 강의 포함) 열려요. 아래 강의보다 나중 강의는 자동으로 잠깁니다.
+          강의를 누르면 그 강의까지(그 이전 강의 포함) 열리고, 나머지는 자동으로 잠깁니다. 이미 열린 강의를
+          다시 누르면 그 이후 강의들이 다시 잠깁니다.
         </p>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
